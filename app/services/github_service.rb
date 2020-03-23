@@ -6,14 +6,13 @@ class GithubService
   end
 
   def authenticate!(client_id, client_secret, code)
-    binding.pry
-      response = Faraday.post "https://github.com/login/oauth/access_token" do |req|
-        req.body = { 'client_id': ENV["GITHUB_CLIENT"], 'client_secret': ENV["GITHUB_SECRET"], 'code': code }
-        req.headers['Accept'] = 'application/json'
-      end
+    response = Faraday.post "https://github.com/login/oauth/access_token" do |req|
+      req.body = { 'client_id': ENV["GITHUB_CLIENT"], 'client_secret': ENV["GITHUB_SECRET"], 'code': code }
+      req.headers['Accept'] = 'application/json'
+    end
 
-      body = JSON.parse(response.body)
-      @access_token = body['access_token']
+    body = JSON.parse(response.body)
+    @access_token = body['access_token']
   end
 
   def get_username
@@ -42,15 +41,10 @@ class GithubService
   end
 
   def create_repo(repo_name)
-    # response = Faraday.post "https://api.github.com/user/repos" do |req|
     Faraday.post "https://api.github.com/user/repos" do |req|
       req.headers['Authorization'] = "token #{@access_token}"
-      # req.headers['Authorization'] = @access_token
-      req.body = {"name": repo_name}
-      # req.body["name"] = repo_name
-      # req.headers['Accept'] = 'application/json'
+      req.body = {"name": repo_name}.to_json
+      req.headers['Accept'] = 'application/json'
     end
-
-    # body = JSON.parse(response.body)
   end
 end
